@@ -1,5 +1,7 @@
 # Environment variables
 .env
+uploads/*
+!uploads/.gitkeep
 # Logs
 logs
 *.log
