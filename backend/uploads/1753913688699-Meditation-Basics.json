@@ -1,0 +1,13 @@
+{
+  "title": "Meditation Basics",
+  "steps": [
+    {
+      "instruction": "Close your eyes and relax",
+      "duration": 30
+    },
+    {
+      "instruction": "Breathe deeply",
+      "duration": 45
+    }
+  ]
+}

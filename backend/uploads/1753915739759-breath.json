@@ -1,0 +1,17 @@
+{
+  "title": "breath",
+  "steps": [
+    {
+      "instruction": "take breath in",
+      "duration": 30
+    },
+    {
+      "instruction": "hold",
+      "duration": 13
+    },
+    {
+      "instruction": "release",
+      "duration": 18
+    }
+  ]
+}
