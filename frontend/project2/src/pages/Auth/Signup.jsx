@@ -3,15 +3,13 @@ import AuthLayout from '../../compnents/layouts/AuthLayout'
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../compnents/inputs/Input';
 import { validateEmail } from '../../utils/helper';
-import Profilepic from '../../compnents/inputs/Profilepic';
 
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/UserContext';
-import uploadImage from '../../utils/uploadImage';
 import bg2 from '../../assets/images/bg2.png';
 const Signup = () => {
-  const [profilepic, setProfilepic] = useState(null);
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,10 +35,7 @@ const Signup = () => {
 
     //signup api call
     try{
-      if(profilepic) {
-       const imageuploads = await uploadImage(profilepic);
-        profileImageUrl = imageuploads.imageUrl || "";
-      }
+      
       const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
         fullName:name,
         email,
@@ -79,13 +74,13 @@ const Signup = () => {
       <div className='w-screen min-h-screen px-4 pt-4 pb-12 overflow-y-auto'>
         <h2 className='text-3xl font-semibold text-green-900'>Wellnest</h2>
    
-    <div className='w-full max-w-xl md:max-w-4xl h-auto mt-5 mx-auto flex flex-col items-center rounded-xl justify-center bg-gradient-to-br from-[#e0f7f1] to-[#fff7ec] '>
+
+<div className="w-full max-w-lg md:max-w-3xl mt-2 mx-auto flex flex-col items-center justify-center 
+  bg-white/80 backdrop-blur-md shadow-xl border border-gray-200 rounded-2xl px-4 py-2 z-10">
       <h3 className='text-2xl font-bold mt-5 text-black'>Create an account</h3>
       <p className='text-xs text-gray-600 mt-[5px] mb-6'>join us today by entring your details</p>
       <form onSubmit={handleSignup}>
-        <div className='   '>
-        <Profilepic image = {profilepic} setImage = {setProfilepic}/>
-        </div>
+        
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
        
         <Input 
@@ -121,7 +116,13 @@ const Signup = () => {
       </form>
       
     </div>
-  
+  <div className='"bg-white/80 backdrop-blur-lg rounded-md  shadow-sm max-w-2xl mx-auto z-10"' >
+  <div className='text-black drop-shadow-lg'>
+    <h2>Welcome to WellNest!</h2>
+    <p>Your personal space for mindful sessions and wellness journaling. Track your thoughts, create sessions, and take care of your mental health – all in one place.</p>
+  </div>
+  <p className='text-lg'>Want to learn more? <a href="/about" className='font-bold text-green-900 text-xl'>Click here</a></p>
+</div>
 </div>
 </div>
 </div>

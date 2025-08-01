@@ -10,9 +10,7 @@ export const API_PATHS = {
         GET_DATA:"/api/v1/dashboard",
     },
     
-    IMAGE:{
-        UPLOAD_IMAGE:"/api/v1/auth/upload-image",
-    },
+    
      SESSIONS: {
   PUBLIC: "/api/v1/sessions", // GET all published sessions
   MY_SESSIONS: "/api/v1/sessions/my-sessions", // GET user's sessions

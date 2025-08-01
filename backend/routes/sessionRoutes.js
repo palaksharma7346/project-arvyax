@@ -19,5 +19,4 @@ router.get('/my-sessions', protect, getUserSessions);
 router.get('/my-sessions/:id', protect, getSessionById);
 router.post('/my-sessions/save-draft', protect, saveDraft);
 router.post('/my-sessions/publish', protect, publishSession);
-router.delete("/my-sessions/:id", protect, deleteSession);
 module.exports = router;

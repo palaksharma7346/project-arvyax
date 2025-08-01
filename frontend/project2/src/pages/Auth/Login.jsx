@@ -72,14 +72,16 @@ console.log("Password:", password);
   <img
     src={bg2}
     alt="background"
-    className="absolute inset-0 w-full h-full object-cover z-0"
+    className="absolute inset-0 w-full h-full object-cover z-0 brightness-90"
   />
 
     <div className='flex relative z-0'>
       <div className='w-screen min-h-screen px-4 pt-4 pb-12 overflow-y-auto'>
         <h2 className='text-3xl font-semibold text-green-900'>Wellnest</h2>
 
-      <div className='w-full max-w-lg md:max-w-3xl h-auto mt-10 mx-auto flex flex-col items-center rounded-xl justify-center bg-gradient-to-br from-[#e0f7f1] to-[#fff7ec] p-6'>
+
+      <div className="w-full max-w-lg md:max-w-3xl mt-2 mx-auto flex flex-col items-center justify-center 
+  bg-white/80 backdrop-blur-md shadow-xl border border-gray-200 rounded-2xl px-4 py-2 z-10">
         <h3 className='text-2xl mt-4 font-semibold text-black'>Welcome back</h3>
         <p className='text-xs text-slate-700 mt-[5px] mb-6'>Please enter your credentials to continue.</p>
         <form onSubmit={handleLogin}>
@@ -106,6 +108,14 @@ console.log("Password:", password);
           </p>
         </form>
       </div>
+      
+<div className='"bg-white/80 backdrop-blur-lg rounded-md  shadow-sm max-w-2xl mx-auto z-10"' >
+  <div className='text-black drop-shadow-lg'>
+    <h2>Welcome to WellNest!</h2>
+    <p>Your personal space for mindful sessions and wellness journaling. Track your thoughts, create sessions, and take care of your mental health – all in one place.</p>
+  </div>
+  <p className='text-lg'>Want to learn more? <a href="/about" className='font-bold text-green-900 text-xl'>Click here</a></p>
+</div>
     </div>
     </div>
   </div>

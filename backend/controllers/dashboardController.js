@@ -6,13 +6,14 @@ exports.getDashboardStats = async (req, res) => {
 
     const allSessions = await Session.find({ user_id: userId });
 
-    const publishedCount = allSessions.filter(s => s.status === "published").length;
+    const publishedSessions = allSessions.filter(s => s.status === "published");
     const draftCount = allSessions.filter(s => s.status === "draft").length;
 
     const stats = {
       totalSessions: allSessions.length,
-      publishedCount,
+       publishedCount: publishedSessions.length,
       draftCount,
+      sessions: publishedSessions
     };
 
     res.status(200).json(stats);

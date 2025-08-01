@@ -40,7 +40,7 @@ console.log("User ID:", req.user._id);
 
 // POST /my-sessions/save-draft
 exports.saveDraft = async (req, res) => {
-  const { id, title, tags, json_file_url } = req.body;
+  const { _id, title, tags, json_file_url } = req.body;
   const data = {
     user_id: req.user._id,
     title,
@@ -52,9 +52,9 @@ exports.saveDraft = async (req, res) => {
 
   try {
     let session;
-    if (id) {
+    if (_id) {
       session = await Session.findOneAndUpdate(
-        { _id: id, user_id: req.user._id },
+        { _id, user_id: req.user._id },
         data,
         { new: true }
       );
@@ -70,13 +70,13 @@ exports.saveDraft = async (req, res) => {
 
 // POST /my-sessions/publish
 exports.publishSession = async (req, res) => {
-  const { id, title, tags, json_file_url } = req.body;
+  const { _id, title, tags, json_file_url } = req.body;
 
   try {
     let session;
-    if (id) {
+    if (_id) {
       session = await Session.findOneAndUpdate(
-        { _id: id, user_id: req.user._id },
+        { _id, user_id: req.user._id },
         {
           title,
           tags,
@@ -99,19 +99,5 @@ exports.publishSession = async (req, res) => {
     res.status(200).json(session);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
-exports.deleteSession = async (req, res) => {
-  try {
-    const session = await Session.findOneAndDelete({
-      _id: req.params.id,
-      user_id: req.user._id,
-    });
-    if (!session) {
-      return res.status(404).json({ message: "Session not found" });
-    }
-    res.status(200).json({ message: "Session deleted" });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
