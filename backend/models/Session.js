@@ -14,9 +14,20 @@ const sessionSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  steps: {
+    type: [
+      {
+        instruction: { type: String, required: true },
+        duration: { type: Number, required: true },
+      }
+    ],
+    default: [],
+  },
   json_file_url: {
     type: String,
-    required: true,
+   required: function () {
+    return this.status === 'published';
+  },
   },
   status: {
     type: String,

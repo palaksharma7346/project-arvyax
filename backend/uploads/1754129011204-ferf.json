@@ -1,0 +1,9 @@
+{
+  "title": "ferf",
+  "steps": [
+    {
+      "instruction": "trgtr",
+      "duration": 45
+    }
+  ]
+}

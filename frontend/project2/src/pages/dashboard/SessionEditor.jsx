@@ -235,7 +235,7 @@
 //     </div>
 //   );
 // }
-import { useEffect, useState,useCallback,useRef } from "react";
+import { useEffect, useState,useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
@@ -272,34 +272,93 @@ export default function SessionEditor() {
   };
 
   const autoSave = useRef(
-    debounce(async (formData, stepsData, modeValue, idValue) => {
-      if (modeValue !== "manual") return;
-      try {
-        const res = await axiosInstance.post(API_PATHS.SESSIONS.SAVE_DRAFT, {
-          ...formData,
-          tags: formData.tags.split(",").map((t) => t.trim()),
-          steps: stepsData,
-          _id: idValue || formData._id,
-        });
-        setStatus("Draft auto-saved at " + new Date().toLocaleTimeString());
-        if (!formData._id && res.data._id) {
-          setForm((prev) => ({ ...prev, _id: res.data._id }));
-          window.history.replaceState(null, "", `/editor/${res.data._id}`);
-        }
-      } catch {
-        setStatus("Auto-save failed.");
+  debounce(async (formData, stepsData, modeValue, idValue) => {
+    if (modeValue !== "manual") return;
+    try {
+      const res = await axiosInstance.post(API_PATHS.SESSIONS.SAVE_DRAFT, {
+        ...formData,
+        tags: formData.tags.split(",").map((t) => t.trim()),
+        steps: stepsData,
+        _id: formData._id || idValue, // Always prefer formData._id if present
+        ...(formData.json_file_url ? { json_file_url: formData.json_file_url } : {}),
+      });
+      setStatus("Draft auto-saved at " + new Date().toLocaleTimeString());
+      if (!formData._id && res.data._id) {
+        setForm((prev) => ({ ...prev, _id: res.data._id }));
+        window.history.replaceState(null, "", `/editor/${res.data._id}`);
       }
-    }, 5000)
-  );
+       } catch {
+      setStatus("Auto-save failed.");
+    }
+  }, 1000)
+);
+const handlePublish = async () => {
+  autoSave.current.flush && autoSave.current.flush();
+  if (!form.title.trim()) {
+    alert("Title is required.");
+    return;
+  }
+
+  try {
+    let json_file_url = form.json_file_url;
+
+    if (mode === "manual") {
+      const sessionJSON = {
+        title: form.title,
+        steps: steps.map((s) => ({
+          instruction: s.instruction.trim(),
+          duration: Number(s.duration),
+        })),
+      };
+      const uploadRes = await axiosInstance.post("/api/v1/upload/json", sessionJSON);
+      json_file_url = uploadRes.data.json_file_url;
+    }
+
+    const payload = {
+      title: form.title,
+      tags: form.tags.split(",").map((t) => t.trim()),
+      json_file_url,
+      _id: form._id || id,
+       // Always prefer form._id if present
+       status: "published",
+    };
+
+    const res = await axiosInstance.post(API_PATHS.SESSIONS.PUBLISH, payload);
+    setForm((prev) => ({ ...prev, _id: res.data._id }));
+    alert("Session published successfully!");
+    navigate("/my-sessions");
+  } catch (error) {
+    console.error("Error publishing session:", error);
+    alert("Failed to publish session.");
+  }
+};
+
+  useEffect(() => {
+    if (id) {
+      axiosInstance.get(API_PATHS.SESSIONS.VIEW_SINGLE(id)).then((res) => {
+        const data = res.data;
+        setForm({
+          title: data.title,
+          tags: data.tags.join(", "),
+          json_file_url: data.json_file_url || "",
+           _id: data._id,
+        });
+      });
+    }
+  }, [id]);
 const handleChange = (e) => {
   const { name, value } = e.target;
   setForm((prev) => ({ ...prev, [name]: value }));
   // Do NOT call autoSave here!
 };
-useEffect(() => {
-  autoSave.current(form,steps);
+
+  useEffect(() => {
+  if (mode === "manual") {
+    autoSave.current(form, steps, mode, id);
+  }
   // eslint-disable-next-line
-}, [form, steps, mode]);
+}, [form, steps, mode, id]);
+
   const handleJsonUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -325,58 +384,7 @@ useEffect(() => {
     };
     reader.readAsText(file);
   };
-const handlePublish = async () => {
-  if (!form.title.trim()) {
-    alert("Title is required.");
-    return;
-  }
 
-  try {
-    let json_file_url = form.json_file_url;
-
-    if (mode === "manual") {
-      const sessionJSON = {
-        title: form.title,
-        steps: steps.map((s) => ({
-          instruction: s.instruction.trim(),
-          duration: Number(s.duration),
-        })),
-      };
-      const uploadRes = await axiosInstance.post("/api/v1/upload/json", sessionJSON);
-      json_file_url = uploadRes.data.json_file_url;
-    }
-
-    const payload = {
-      title: form.title,
-      tags: form.tags.split(",").map((t) => t.trim()),
-      json_file_url,
-      _id:id || form._id, // Use form._id if present
-    };
-
-    const res = await axiosInstance.post(API_PATHS.SESSIONS.PUBLISH, payload);
-    // Optionally update form._id here as well
-    setForm((prev) => ({ ...prev, _id: res.data._id }));
-    alert("Session published successfully!");
-    navigate("/my-sessions");
-  } catch (error) {
-    console.error("Error publishing session:", error);
-    alert("Failed to publish session.");
-  }
-};
-
-  useEffect(() => {
-    if (id) {
-      axiosInstance.get(API_PATHS.SESSIONS.VIEW_SINGLE(id)).then((res) => {
-        const data = res.data;
-        setForm({
-          title: data.title,
-          tags: data.tags.join(", "),
-          json_file_url: data.json_file_url || "",
-           _id: data._id,
-        });
-      });
-    }
-  }, [id]);
   return (
   <div className="my-10 px-4 flex flex-col items-center text-center">
     <h2 className="text-3xl font-semibold text-green-800 mb-8">Session Editor</h2>
@@ -409,7 +417,9 @@ const handlePublish = async () => {
           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
         />
       </div>
+      <h3 className="text-lg font-semibold text-green-800 mb-4">Session Steps</h3>
        <div className="mb-6 flex justify-center gap-4">
+         
         <button
           onClick={() => setMode("manual")}
           className={`px-4 py-2 rounded-md font-medium transition ${
@@ -447,7 +457,7 @@ const handlePublish = async () => {
       {/* Manual Steps Input */}
       {mode === "manual" && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-green-800 mb-4">Session Steps</h3>
+         
 
           {steps.map((step, index) => (
             <div
